@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Calendar Reflect
 
-## Getting Started
+A personal productivity app that reads your Google Calendar, categorises your events, and generates weekly and monthly reflections from the patterns it finds — no AI required.
 
-First, run the development server:
+## What it does
+
+- **Syncs** your Google Calendar (90-day backfill on first run, incremental afterwards)
+- **Categorises** every event automatically using keyword rules: Meeting, Work, Health, Learning, Social, Family, Admin, or Other
+- **Generates reflections** with stats, pattern observations, and suggestions — computed entirely from your data
+- **Scores your week** on a 0–100 balance scale based on meeting load, focus time, health, and learning
+
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 16 App Router (JavaScript) |
+| Database | Neon (Postgres) via Drizzle ORM |
+| Auth | NextAuth v5 + Google OAuth |
+| Background jobs | Inngest |
+| Charts | Recharts |
+| Styling | Tailwind CSS v4 |
+| Deployment | Vercel |
+
+## Local setup
+
+### 1. Clone and install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repo-url>
+cd calendar-reflect
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Create a Google OAuth app
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
+2. Create an **OAuth 2.0 Client ID** (Web application)
+3. Add `http://localhost:3000/api/auth/callback/google` to **Authorized redirect URIs**
+4. Enable the **Google Calendar API** for your project
+5. Add yourself as a test user under **OAuth consent screen → Test users**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Create a Neon database
 
-## Learn More
+Sign up at [neon.tech](https://neon.tech), create a project, and copy both the **pooled** and **direct** connection strings.
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Configure environment variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Fill in `.env.local`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+AUTH_SECRET=           # openssl rand -base64 32
+AUTH_GOOGLE_ID=        # from Google Cloud Console
+AUTH_GOOGLE_SECRET=    # from Google Cloud Console
+DATABASE_URL=          # Neon pooled connection string
+DATABASE_URL_UNPOOLED= # Neon direct connection string
+INNGEST_EVENT_KEY=     # from app.inngest.com
+INNGEST_SIGNING_KEY=   # from app.inngest.com
+NEXTAUTH_URL=http://localhost:3000
+CRON_SECRET=           # openssl rand -base64 32
+```
 
-## Deploy on Vercel
+### 5. Run migrations
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx drizzle-kit generate
+npx drizzle-kit migrate
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 6. Start the dev server
+
+```bash
+# Terminal 1 — app
+npm run dev
+
+# Terminal 2 — Inngest local runner (optional, needed for background jobs)
+npx inngest-cli@latest dev -u http://localhost:3000/api/inngest
+```
+
+Visit `http://localhost:3000`, sign in with Google, and click **Sync calendar**.
+
+## Deployment (Vercel)
+
+1. Push to GitHub and import the repo at [vercel.com](https://vercel.com)
+2. Add all `.env.local` variables as Vercel environment variables, plus:
+   ```
+   AUTH_URL=https://your-project.vercel.app
+   ```
+3. Add `https://your-project.vercel.app/api/auth/callback/google` to your Google OAuth client's **Authorized redirect URIs**
+4. After deploy, go to [app.inngest.com](https://app.inngest.com) → Apps → **Sync App** and enter:
+   ```
+   https://your-project.vercel.app/api/inngest
+   ```
+
+> Vercel Hobby plan only supports daily cron jobs. The sync cron runs at 6 AM UTC daily; the reflection cron runs every Sunday at 8 PM UTC.
+
+## How categorisation works
+
+Events are matched against ordered keyword rules — first match wins. The full rule set lives in `lib/logic/categorise.js`. If no rule matches, events with 2+ attendees fall back to **Meeting**, otherwise **Other**.
+
+## How the balance score works
+
+Starts at 70 and adjusts based on the week's data:
+
+| Condition | Change |
+|---|---|
+| Meeting load > 50% of total time | −20 |
+| Meeting load 40–50% | −10 |
+| Any health events logged | +10 |
+| Any learning events logged | +5 |
+| 10+ hours of focus/deep work | +10 |
+
+Score is clamped between 0 and 100.
