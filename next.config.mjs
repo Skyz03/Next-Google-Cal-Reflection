@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  serverExternalPackages: ['tsdav', 'node-ical'],
 };
 
 export default nextConfig;

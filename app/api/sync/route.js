@@ -1,5 +1,6 @@
 import { getSessionUserId } from '@/lib/session.js'
 import { syncGoogleCalendar } from '@/lib/google/sync.js'
+import { syncAppleCalendar } from '@/lib/apple/sync.js'
 import { generateWeeklyReflection, generateMonthlyReflection } from '@/lib/logic/reflect.js'
 import { NextResponse } from 'next/server'
 
@@ -8,7 +9,10 @@ export async function POST() {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
-    await syncGoogleCalendar(userId)
+    await Promise.all([
+      syncGoogleCalendar(userId),
+      syncAppleCalendar(userId),
+    ])
     await Promise.all([
       generateWeeklyReflection(userId),
       generateMonthlyReflection(userId),
