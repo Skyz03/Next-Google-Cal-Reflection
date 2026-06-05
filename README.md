@@ -1,10 +1,10 @@
 # Calendar Reflect
 
-A personal productivity app that reads your Google Calendar, categorises your events, and generates weekly and monthly reflections from the patterns it finds — no AI required.
+A personal productivity app that reads your Google Calendar and/or Apple Calendar, categorises your events, and generates weekly and monthly reflections from the patterns it finds — no AI required.
 
 ## What it does
 
-- **Syncs** your Google Calendar (90-day backfill on first run, incremental afterwards)
+- **Syncs** Google Calendar (90-day backfill on first run, incremental afterwards) and/or Apple Calendar via iCloud CalDAV
 - **Categorises** every event automatically using keyword rules: Meeting, Work, Health, Learning, Social, Family, Admin, or Other
 - **Generates reflections** with stats, pattern observations, and suggestions — computed entirely from your data
 - **Scores your week** on a 0–100 balance scale based on meeting load, focus time, health, and learning
@@ -16,6 +16,7 @@ A personal productivity app that reads your Google Calendar, categorises your ev
 | Framework | Next.js 16 App Router (JavaScript) |
 | Database | Neon (Postgres) via Drizzle ORM |
 | Auth | NextAuth v5 + Google OAuth |
+| Calendar sync | Google Calendar API · iCloud CalDAV (`tsdav` + `node-ical`) |
 | Background jobs | Inngest |
 | Charts | Recharts |
 | Styling | Tailwind CSS v4 |
@@ -77,6 +78,16 @@ npx inngest-cli@latest dev -u http://localhost:3000/api/inngest
 ```
 
 Visit `http://localhost:3000`, sign in with Google, and click **Sync calendar**.
+
+### Connecting Apple Calendar (optional)
+
+Apple Calendar uses CalDAV — no OAuth. You'll need an **app-specific password**:
+
+1. Go to [appleid.apple.com](https://appleid.apple.com) → Sign-In & Security → App-Specific Passwords
+2. Generate a password for "Calendar Reflect"
+3. In the app, go to **Settings → Integrations → Apple Calendar** and enter your iCloud email + that password
+
+Once connected, both Google and Apple events sync together whenever you hit **Sync calendar**.
 
 ## Deployment (Vercel)
 
