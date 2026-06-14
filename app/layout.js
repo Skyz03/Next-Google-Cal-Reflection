@@ -11,9 +11,36 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+const TITLE = 'Calendar Reflect'
+const DESCRIPTION = 'Understand your time. Weekly and monthly reflections from your calendar.'
+
 export const metadata = {
-  title: "Calendar Reflect",
-  description: "Understand your time. Weekly and monthly reflections from your calendar.",
+  metadataBase: new URL(APP_URL),
+  title: {
+    default: TITLE,
+    template: `%s — ${TITLE}`,
+  },
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: APP_URL,
+    siteName: TITLE,
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+  icons: {
+    icon: '/favicon.ico',
+  },
+  other: {
+    'theme-color': '#6366F1',
+  },
 };
 
 export default function RootLayout({ children }) {

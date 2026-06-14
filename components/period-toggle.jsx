@@ -5,10 +5,7 @@ export default function PeriodToggle({ current }) {
   return (
     <div
       className="flex rounded-xl p-1 text-sm"
-      style={{
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.08)',
-      }}
+      style={{ background: '#E5E5EA' }}
     >
       {['week', 'month'].map((p) => (
         <Link
@@ -17,12 +14,8 @@ export default function PeriodToggle({ current }) {
           className="px-3.5 py-1.5 rounded-lg font-medium transition-all duration-150 capitalize"
           style={
             current === p
-              ? {
-                  background: 'rgba(99,102,241,0.25)',
-                  color: '#A5B4FC',
-                  boxShadow: 'inset 0 0 0 1px rgba(99,102,241,0.3)',
-                }
-              : { color: 'rgba(255,255,255,0.3)' }
+              ? { background: '#FFFFFF', color: '#1C1C1E', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }
+              : { color: '#6E6E73' }
           }
         >
           {p === 'week' ? 'This Week' : 'This Month'}

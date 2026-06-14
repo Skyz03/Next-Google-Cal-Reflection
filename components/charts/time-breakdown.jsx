@@ -1,21 +1,9 @@
 'use client'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-
-const CATEGORY_COLORS = {
-  Health:   '#34D399',
-  Meeting:  '#818CF8',
-  Work:     '#60A5FA',
-  Learning: '#FBBF24',
-  Social:   '#F472B6',
-  Family:   '#FB923C',
-  Admin:    '#A78BFA',
-  Other:    '#94A3B8',
-}
-
-const FALLBACK = ['#818CF8', '#34D399', '#60A5FA', '#FBBF24', '#F472B6', '#FB923C', '#A78BFA', '#94A3B8']
+import { CATEGORY_COLORS, CATEGORY_COLOR_FALLBACK } from '@/lib/constants.js'
 
 function getColor(name, i) {
-  return CATEGORY_COLORS[name] ?? FALLBACK[i % FALLBACK.length]
+  return CATEGORY_COLORS[name] ?? CATEGORY_COLOR_FALLBACK[i % CATEGORY_COLOR_FALLBACK.length]
 }
 
 function CustomTooltip({ active, payload }) {
@@ -26,16 +14,15 @@ function CustomTooltip({ active, payload }) {
     <div
       className="px-3 py-2 rounded-xl text-xs font-medium"
       style={{
-        background: 'rgba(13,21,37,0.95)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+        background: '#FFFFFF',
+        border: '1px solid #E5E5EA',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
       }}
     >
       <div className="flex items-center gap-2">
         <span className="w-2 h-2 rounded-full" style={{ background: color }} />
-        <span style={{ color: 'rgba(255,255,255,0.6)' }}>{name}</span>
-        <span className="font-bold" style={{ color: '#F1F5F9' }}>{value}h</span>
+        <span style={{ color: '#6E6E73' }}>{name}</span>
+        <span className="font-bold" style={{ color: '#1C1C1E' }}>{value}h</span>
       </div>
     </div>
   )
@@ -45,10 +32,10 @@ function CustomLegend({ payload }) {
   if (!payload?.length) return null
   return (
     <div className="flex flex-wrap justify-center gap-x-3 gap-y-1.5 mt-2 px-2">
-      {payload.map((entry, i) => (
-        <div key={i} className="flex items-center gap-1.5">
+      {payload.map((entry) => (
+        <div key={entry.value} className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full" style={{ background: entry.color }} />
-          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{entry.value}</span>
+          <span className="text-xs" style={{ color: '#6E6E73' }}>{entry.value}</span>
         </div>
       ))}
     </div>
@@ -80,7 +67,7 @@ export default function TimeBreakdownChart({ data }) {
         >
           {data.map((entry, i) => (
             <Cell
-              key={i}
+              key={entry.name}
               fill={getColor(entry.name, i)}
               style={{ filter: `drop-shadow(0 0 6px ${getColor(entry.name, i)}50)` }}
             />

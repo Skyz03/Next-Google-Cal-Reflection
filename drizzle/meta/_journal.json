@@ -15,6 +15,20 @@
       "when": 1780638820873,
       "tag": "0001_tiny_gabe_jones",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781458033126,
+      "tag": "0002_stale_firebird",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781459979632,
+      "tag": "0003_flashy_silk_fever",
+      "breakpoints": true
     }
   ]
 }
