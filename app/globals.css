@@ -4,24 +4,23 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Dark Cinema Design Tokens */
-  --color-bg:           #06091A;
-  --color-bg-elevated:  #0D1525;
-  --color-sidebar:      #040812;
-  --color-surface:      rgba(255, 255, 255, 0.04);
-  --color-surface-hover:rgba(255, 255, 255, 0.07);
-  --color-border:       rgba(255, 255, 255, 0.08);
-  --color-border-strong:rgba(255, 255, 255, 0.14);
-  --color-text-1:       #F1F5F9;
-  --color-text-2:       #94A3B8;
-  --color-text-3:       #475569;
-  --color-accent:       #6366F1;
-  --color-accent-light: #818CF8;
-  --color-accent-dim:   rgba(99, 102, 241, 0.15);
-  --color-accent-glow:  rgba(99, 102, 241, 0.30);
-  --color-success:      #34D399;
-  --color-warning:      #FBBF24;
-  --color-danger:       #F87171;
+  /* Light Mode Design Tokens — Apple Health inspired */
+  --color-bg:           #F2F2F7;
+  --color-bg-elevated:  #FFFFFF;
+  --color-sidebar:      #FFFFFF;
+  --color-surface:      #FFFFFF;
+  --color-surface-hover:#F2F2F7;
+  --color-border:       #E5E5EA;
+  --color-border-strong:#C7C7CC;
+  --color-text-1:       #1C1C1E;
+  --color-text-2:       #6E6E73;
+  --color-text-3:       #AEAEB2;
+  --color-accent:       #5856D6;
+  --color-accent-light: #7876E0;
+  --color-accent-dim:   rgba(88, 86, 214, 0.10);
+  --color-success:      #34C759;
+  --color-warning:      #FF9500;
+  --color-danger:       #FF3B30;
 }
 
 * {
@@ -30,34 +29,22 @@
 }
 
 body {
-  background: #06091A;
-  color: #F1F5F9;
+  background: #F2F2F7;
+  color: #1C1C1E;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+::-webkit-scrollbar-thumb { background: #C7C7CC; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #AEAEB2; }
 
-/* Glass card utility */
-.glass {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Card utility */
+.card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
 }
-
-.glass-strong {
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-/* Glow utilities */
-.glow-indigo { box-shadow: 0 0 24px rgba(99, 102, 241, 0.25); }
-.glow-sm     { box-shadow: 0 0 12px rgba(99, 102, 241, 0.18); }
 
 /* Selection */
-::selection { background: rgba(99, 102, 241, 0.3); color: #F1F5F9; }
+::selection { background: rgba(88, 86, 214, 0.15); color: #1C1C1E; }

@@ -1,16 +1,48 @@
 'use client'
-import { useState } from 'react'
+import { useSyncExternalStore, useState } from 'react'
 import { useRouter } from 'next/navigation'
+
+const LAST_SYNC_KEY = 'calendar_reflect_last_sync'
+
+// useSyncExternalStore: server snapshot is always null (no localStorage on server),
+// client snapshot reads from localStorage. This prevents hydration mismatches.
+function subscribeToLastSync(callback) {
+  window.addEventListener('storage', callback)
+  return () => window.removeEventListener('storage', callback)
+}
+function getLastSyncSnapshot() {
+  const stored = localStorage.getItem(LAST_SYNC_KEY)
+  return stored ? Number(stored) : null
+}
+
+function timeAgo(ts) {
+  if (!ts) return null
+  const diff = Math.floor((Date.now() - ts) / 1000)
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return `${Math.floor(diff / 86400)}d ago`
+}
 
 export default function SyncButton() {
   const [status, setStatus] = useState('idle')
   const router = useRouter()
+
+  const lastSync = useSyncExternalStore(
+    subscribeToLastSync,
+    getLastSyncSnapshot,
+    () => null  // server snapshot — always null, matches SSR output
+  )
 
   async function handleSync() {
     setStatus('loading')
     try {
       const res = await fetch('/api/sync', { method: 'POST' })
       if (!res.ok) throw new Error('sync failed')
+      const now = Date.now()
+      localStorage.setItem(LAST_SYNC_KEY, String(now))
+      // storage events don't fire for the originating tab, so dispatch manually
+      window.dispatchEvent(new StorageEvent('storage', { key: LAST_SYNC_KEY }))
       setStatus('done')
       router.refresh()
       setTimeout(() => setStatus('idle'), 3000)
@@ -21,37 +53,39 @@ export default function SyncButton() {
   }
 
   const config = {
-    idle:    { label: 'Sync',         bg: 'linear-gradient(135deg, #6366F1, #8B5CF6)', glow: 'rgba(99,102,241,0.4)' },
-    loading: { label: 'Syncing…',     bg: 'linear-gradient(135deg, #4F46E5, #7C3AED)', glow: 'rgba(79,70,229,0.4)' },
-    done:    { label: '✓ Synced',     bg: 'linear-gradient(135deg, #059669, #10B981)', glow: 'rgba(16,185,129,0.4)' },
-    error:   { label: '✕ Retry',      bg: 'linear-gradient(135deg, #DC2626, #EF4444)', glow: 'rgba(239,68,68,0.4)' },
+    idle:    { label: 'Sync now',   color: '#5856D6', bg: '#EEF0FB' },
+    loading: { label: 'Syncing…',   color: '#5856D6', bg: '#EEF0FB' },
+    done:    { label: 'Up to date', color: '#34C759', bg: '#EDFBF2' },
+    error:   { label: 'Try again',  color: '#FF3B30', bg: '#FFF0EF' },
   }
 
-  const { label, bg, glow } = config[status]
+  const { label, color, bg } = config[status]
+  const ago = timeAgo(lastSync)
 
   return (
-    <button
-      onClick={handleSync}
-      disabled={status === 'loading'}
-      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-xl transition-all duration-200 disabled:opacity-60 cursor-pointer"
-      style={{
-        background: bg,
-        boxShadow: `0 4px 20px ${glow}`,
-      }}
-      onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = `0 6px 28px ${glow}` }}
-      onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 4px 20px ${glow}` }}
-    >
-      {status === 'loading' ? (
-        <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-        </svg>
-      ) : (
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="1 4 1 10 7 10"/>
-          <path d="M3.51 15a9 9 0 1 0 .49-3.41"/>
-        </svg>
+    <div className="flex flex-col items-end gap-1">
+      <button
+        onClick={handleSync}
+        disabled={status === 'loading'}
+        className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-opacity duration-150 disabled:opacity-60 cursor-pointer"
+        style={{ background: bg, color }}
+        aria-label={status === 'loading' ? 'Syncing your calendar' : 'Sync your calendar now'}
+      >
+        {status === 'loading' ? (
+          <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+        ) : (
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 .49-3.41"/>
+          </svg>
+        )}
+        {label}
+      </button>
+      {ago && status === 'idle' && (
+        <span className="text-xs" style={{ color: '#AEAEB2' }}>Updated {ago}</span>
       )}
-      {label}
-    </button>
+    </div>
   )
 }

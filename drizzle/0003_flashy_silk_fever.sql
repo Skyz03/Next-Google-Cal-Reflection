@@ -1,0 +1,2 @@
+CREATE INDEX "reflections_user_period_idx" ON "reflections" USING btree ("user_id","period","period_start");--> statement-breakpoint
+CREATE INDEX "reflections_user_gen_idx" ON "reflections" USING btree ("user_id","generated_at");

@@ -11,6 +11,13 @@ export async function GET(request) {
   const allUsers = await db.select({ id: users.id }).from(users)
   const jobs = allUsers.map((u) => ({ name: 'calendar/sync.requested', data: { userId: u.id } }))
 
-  if (jobs.length > 0) await inngest.send(jobs)
-  return NextResponse.json({ triggered: jobs.length })
+  if (jobs.length === 0) return NextResponse.json({ triggered: 0 })
+
+  try {
+    await inngest.send(jobs)
+    return NextResponse.json({ triggered: jobs.length })
+  } catch (err) {
+    console.error('[cron/sync] failed to send jobs to Inngest', err)
+    return NextResponse.json({ error: 'Failed to queue sync jobs.' }, { status: 500 })
+  }
 }

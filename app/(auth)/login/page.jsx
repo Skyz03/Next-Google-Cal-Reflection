@@ -1,6 +1,22 @@
 import { signIn } from '@/lib/auth.js'
 import LoginButton from './login-button.jsx'
 
+export const metadata = {
+  title: 'Sign In',
+  description: 'Sign in with your Google account to get weekly and monthly insights from your calendar.',
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: 'Sign In — Calendar Reflect',
+    description: 'Sign in with your Google account to get weekly and monthly insights from your calendar.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Sign In — Calendar Reflect',
+    description: 'Sign in with your Google account to get weekly and monthly insights from your calendar.',
+  },
+}
+
 export default function LoginPage() {
   return (
     <div
@@ -55,7 +71,8 @@ export default function LoginPage() {
               boxShadow: '0 0 40px rgba(99,102,241,0.45), 0 8px 32px rgba(0,0,0,0.4)',
             }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" role="img" aria-label="Calendar Reflect">
+              <title>Calendar Reflect</title>
               <rect x="3" y="4" width="18" height="18" rx="2"/>
               <line x1="16" y1="2" x2="16" y2="6"/>
               <line x1="8" y1="2" x2="8" y2="6"/>
